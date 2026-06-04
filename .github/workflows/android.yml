@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # این خط به گیت‌هاب دستور می‌دهد مستقیماً از محیط جدید نود ۲۴ استفاده کند تا هشدار برطرف شود
+      # رفع کامل هشدارهای مربوط به نسخه Node.js در سرورهای گیت‌هاب
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
@@ -36,3 +36,9 @@ jobs:
         export PATH=$PATH:~/.local/bin
         buildozer android clean
         buildozer -v android debug
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: package
+        path: bin/*.apk
