@@ -9,6 +9,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      # این خط به گیت‌هاب دستور می‌دهد مستقیماً از محیط جدید نود ۲۴ استفاده کند تا هشدار برطرف شود
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
     - uses: actions/checkout@v4
 
@@ -30,6 +34,5 @@ jobs:
     - name: Build with Buildozer
       run: |
         export PATH=$PATH:~/.local/bin
-        # این دستور کش‌های قبلی را پاک می‌کند تا تداخلی پیش نیاید
         buildozer android clean
         buildozer -v android debug
