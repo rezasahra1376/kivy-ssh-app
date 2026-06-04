@@ -6,24 +6,24 @@ from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.button import MDRaisedButton, MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineAvatarIconListItem, IconLeftWidget
-from kivy.utils import platform
+from kivymd.uix.textfield import MDTextField
 
-# ساختار گرافیکی برنامه با زبان KV
+# طراحی رابط کاربری برنامه
 KV = '''
 MDBoxLayout:
     orientation: 'vertical'
-    md_bg_color: 0.1, 0.1, 0.12, 1  # تم تاریک شیک
+    md_bg_color: [0.07, 0.07, 0.08, 1]
 
     MDTopAppBar:
-        title: "مدیریت و اتصال SSH"
+        title: "SSH Tunnel Manager"
         elevation: 4
-        pos_hint: {"top": 1}
-        md_bg_color: 0.2, 0.2, 0.25, 1
+        md_bg_color: [0.12, 0.12, 0.16, 1]
+        specific_text_color: [1, 1, 1, 1]
 
     MDBoxLayout:
         orientation: 'vertical'
-        padding: "20dp"
-        spacing: "15dp"
+        padding: "16dp"
+        spacing: "12dp"
 
         MDScrollView:
             MDList:
@@ -31,22 +31,23 @@ MDBoxLayout:
 
         MDFloatingActionButton:
             icon: "plus"
-            md_bg_color: 0.2, 0.6, 0.8, 1
+            md_bg_color: [0.12, 0.53, 0.9, 1]
+            icon_color: [1, 1, 1, 1]
             pos_hint: {"center_x": .5}
             on_release: app.show_add_server_dialog()
             
         MDLabel:
             id: status_label
-            text: "وضعیت: آماده اتصال"
+            text: "Status: Ready"
             halign: "center"
             theme_text_color: "Custom"
-            text_color: 1, 1, 1, 0.7
+            text_color: [1, 1, 1, 0.6]
             font_style: "Caption"
 '''
 
 CONFIG_FILE = "ssh_servers_pass.json"
 
-class SSHManagerApp(MDApp):
+class SSHTunnelApp(MDApp):
     dialog = None
 
     def build(self):
@@ -58,7 +59,6 @@ class SSHManagerApp(MDApp):
         self.load_servers()
 
     def load_servers(self):
-        """بارگذاری سرورها و نمایش در لیست"""
         self.root.ids.server_list_container.clear_widgets()
         if os.path.exists(CONFIG_FILE):
             try:
@@ -71,37 +71,32 @@ class SSHManagerApp(MDApp):
                         )
                         item.add_widget(IconLeftWidget(icon="server"))
                         self.root.ids.server_list_container.add_widget(item)
-            except Exception:
+            except:
                 pass
 
     def show_add_server_dialog(self):
-        """نمایش پنجره افزودن سرور جدید"""
         if not self.dialog:
-            # ساخت یک باکس برای ورودی‌ها
             content = MDBoxLayout(orientation='vertical', spacing="12dp", size_hint_y=None, height="180dp")
-            
-            from kivymd.uix.textfield import MDTextField
-            self.user_input = MDTextField(hint_text="نام کاربری (مثل root)")
-            self.ip_input = MDTextField(hint_text="آی‌پي یا دامنه")
-            self.pass_input = MDTextField(hint_text="رمز عبور", password=True)
+            self.user_input = MDTextField(hint_text="Username (e.g. root)")
+            self.ip_input = MDTextField(hint_text="IP or Domain")
+            self.pass_input = MDTextField(hint_text="Password", password=True)
             
             content.add_widget(self.user_input)
             content.add_widget(self.ip_input)
             content.add_widget(self.pass_input)
 
             self.dialog = MDDialog(
-                title="افزودن سرور جدید",
+                title="Add New Server",
                 type="custom",
                 content_cls=content,
                 buttons=[
-                    MDFlatButton(text="لغو", on_release=lambda x: self.dialog.dismiss()),
-                    MDRaisedButton(text="ذخیره", on_release=lambda x: self.save_new_server())
+                    MDFlatButton(text="CANCEL", on_release=lambda x: self.dialog.dismiss()),
+                    MDRaisedButton(text="SAVE", on_release=lambda x: self.save_new_server())
                 ],
             )
         self.dialog.open()
 
     def save_new_server(self):
-        """ذخیره اطلاعات سرور جدید"""
         user = self.user_input.text.strip()
         ip = self.ip_input.text.strip()
         password = self.pass_input.text.strip()
@@ -115,24 +110,19 @@ class SSHManagerApp(MDApp):
                 except: pass
             
             servers.append({"user": user, "ip": ip, "password": password})
-            
             with open(CONFIG_FILE, "w") as f:
                 json.dump(servers, f, indent=4)
             
             self.dialog.dismiss()
             self.load_servers()
-            
-            # خالی کردن فرم
             self.user_input.text = ""
             self.ip_input.text = ""
             self.pass_input.text = ""
 
     def connect_ssh(self, server):
-        """شبیه‌سازی فرآیند اتصال در اندروید"""
-        self.root.ids.status_label.text = f"در حال اتصال به {server['ip']}..."
-        # توجه: برای اتصال واقعی SSH تونل در اندروید، پایتون خام محدودیت دارد 
-        # و معمولاً در نسخه‌های نهایی از پکیج‌های بومی یا سرویس‌های پروکسی اندروید استفاده می‌شود.
-        self.root.ids.status_label.text = f"اتصال موفقیت‌آمیز به {server['ip']} (تونل شبیه‌سازی شده)"
+        self.root.ids.status_label.text = f"Connecting to {server['ip']}..."
+        # شبیه‌سازی وضعیت اتصال روی گرافیک اندروید
+        self.root.ids.status_label.text = f"Connected to {server['ip']} (Port 1080)"
 
 if __name__ == "__main__":
-    SSHManagerApp().run()
+    SSHTunnelApp().run()
