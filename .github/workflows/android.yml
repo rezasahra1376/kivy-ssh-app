@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # رفع کامل هشدارهای مربوط به نسخه Node.js در سرورهای گیت‌هاب
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
@@ -34,7 +33,6 @@ jobs:
     - name: Build with Buildozer
       run: |
         export PATH=$PATH:~/.local/bin
-        buildozer android clean
         buildozer -v android debug
 
     - name: Upload APK Artifact
