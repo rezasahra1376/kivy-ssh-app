@@ -30,20 +30,8 @@ jobs:
       run: |
         pip3 install --user --upgrade "buildozer>=1.5.0" "cython<3.0.0" virtualenv
 
-    # بخش جدید: تایید خودکار تمام لایسنس‌های اندروید قبل از شروع ساخت
-    - name: Accept Android SDK Licenses
-      run: |
-        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-        echo -e "8933bad161ad4178b1185d1a37fbf41ea5269c55\nd56f174cc4118b39b295b8b7134443630a7ee314\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-        echo -e "84831b9409646a918e30573bab4c9c91346d8abd" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
-
     - name: Build with Buildozer
       run: |
         export PATH=$PATH:~/.local/bin
-        buildozer -v android debug
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: package
-        path: bin/*.apk
+        # ارسال خودکار پاسخ مثبت به تمامی درخواست‌های تایید لایسنس اندروید
+        yes | buildozer -v android debug
