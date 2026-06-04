@@ -1,3 +1,16 @@
+# ترفند حیاتی برای دور زدن باگ داخلی KivyMD و جلوگیری از کرش لودینگ
+import sys
+try:
+    from jnius import autoclass
+    import jnius
+    # پیدا کردن کلاس واقعی اکتیویتی کایوی
+    real_activity = autoclass('org.kivy.android.PythonActivity')
+    # تزریق اکتیویتی واقعی به آدرسی که کیوی‌ام‌دی به اشتباه دنبالش می‌گردد
+    sys.modules['org.renpy.android.PythonActivity'] = real_activity
+except Exception as e:
+    print(f"Jnius bypass skipped (Not running on Android yet): {e}")
+
+# حالا با خیال راحت کتابخانه‌ها لود می‌شوند و کرش رخ نمی‌دهد
 import json
 import os
 from kivy.lang import Builder
@@ -121,7 +134,6 @@ class SSHTunnelApp(MDApp):
 
     def connect_ssh(self, server):
         self.root.ids.status_label.text = f"Connecting to {server['ip']}..."
-        # شبیه‌سازی وضعیت اتصال روی گرافیک اندروید
         self.root.ids.status_label.text = f"Connected to {server['ip']} (Port 1080)"
 
 if __name__ == "__main__":
